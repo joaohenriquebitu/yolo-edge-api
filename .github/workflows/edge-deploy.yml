@@ -48,12 +48,7 @@ jobs:
           mkdir -p ~/.ssh
           printf "%s\n" "${{ secrets.RPI_SSH_KEY }}" > ~/.ssh/dvc_key
           chmod 600 ~/.ssh/dvc_key
-          
-          echo "Host ${{ secrets.RPI_HOST }}" > ~/.ssh/config
-          echo "  IdentityFile ~/.ssh/dvc_key" >> ~/.ssh/config
-          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
-          chmod 600 ~/.ssh/config
-
+          dvc remote modify --local local_remote keyfile ~/.ssh/dvc_key
           dvc pull
 
       - name: Disponibiliza o modelo em /app/models (mesmo path usado no Docker)
@@ -153,12 +148,7 @@ jobs:
           mkdir -p ~/.ssh
           printf "%s\n" "${{ secrets.RPI_SSH_KEY }}" > ~/.ssh/dvc_key
           chmod 600 ~/.ssh/dvc_key
-          
-          echo "Host ${{ secrets.RPI_HOST }}" > ~/.ssh/config
-          echo "  IdentityFile ~/.ssh/dvc_key" >> ~/.ssh/config
-          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
-          chmod 600 ~/.ssh/config
-
+          dvc remote modify --local local_remote keyfile ~/.ssh/dvc_key
           dvc pull
 
       - name: Executar quality gate (mAP@0.5 >= 0.50)
