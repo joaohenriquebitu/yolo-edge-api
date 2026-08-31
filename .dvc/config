@@ -1,0 +1,4 @@
+[core]
+    remote = local_remote
+['remote "local_remote"']
+    url = ssh://jh@100.88.129.43/home/jh/dvc-storage
