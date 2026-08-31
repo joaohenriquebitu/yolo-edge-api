@@ -148,8 +148,18 @@ jobs:
           mkdir -p ~/.ssh
           printf "%s\n" "${{ secrets.RPI_SSH_KEY }}" > ~/.ssh/dvc_key
           chmod 600 ~/.ssh/dvc_key
+          ssh-keyscan -H 100.88.129.43 >> ~/.ssh/known_hosts
+          ssh -i ~/.ssh/dvc_key -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15 jh@100.88.129.43 "echo SSH connection OK"
           dvc remote modify --local local_remote keyfile ~/.ssh/dvc_key
-          dvc pull
+          for attempt in 1 2 3; do
+            dvc pull && break
+            if [ "$attempt" -eq 3 ]; then
+              echo "Falha ao executar dvc pull após 3 tentativas."
+              exit 1
+            fi
+            echo "Tentativa ${attempt} de dvc pull falhou. Aguardando para tentar novamente..."
+            sleep 10
+          done
 
       - name: Executar quality gate (mAP@0.5 >= 0.50)
         run: python scripts/validate_model.py --threshold 0.50
