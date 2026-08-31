@@ -48,7 +48,9 @@ jobs:
           mkdir -p ~/.ssh
           printf "%s\n" "${{ secrets.RPI_SSH_KEY }}" > ~/.ssh/dvc_key
           chmod 600 ~/.ssh/dvc_key
-          dvc remote modify --local local_remote keyfile ~/.ssh/dvc_key
+          dvc remote modify --local origin keyfile ~/.ssh/dvc_key
+          dvc remote modify origin ssh_connect_timeout 60
+          dvc config core.jobs 1
           dvc pull
 
       - name: Disponibiliza o modelo em /app/models (mesmo path usado no Docker)
@@ -148,7 +150,9 @@ jobs:
           mkdir -p ~/.ssh
           printf "%s\n" "${{ secrets.RPI_SSH_KEY }}" > ~/.ssh/dvc_key
           chmod 600 ~/.ssh/dvc_key
-          dvc remote modify --local local_remote keyfile ~/.ssh/dvc_key
+          dvc remote modify --local origin keyfile ~/.ssh/dvc_key
+          dvc remote modify origin ssh_connect_timeout 60
+          dvc config core.jobs 1
           dvc pull
 
       - name: Executar quality gate (mAP@0.5 >= 0.50)
