@@ -1,7 +1,9 @@
 import os
 from pathlib import Path
+
 import torch
 from ultralytics import YOLO
+
 # Ajuste para PyTorch 2.6+: desativa weights_only temporariamente no carregamento de pesos do YOLO
 _orig_torch_load = torch.load
 def _patched_torch_load(*args, **kwargs):

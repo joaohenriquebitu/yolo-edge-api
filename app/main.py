@@ -1,17 +1,22 @@
 import base64
 import io
 import time
-from pathlib import Path
-from fastapi import FastAPI, HTTPException, Response
-from PIL import Image
-import numpy as np
+
 import httpx
+import numpy as np
+from fastapi import FastAPI, HTTPException
+from model import get_default_model_name, load_model
+from PIL import Image
 from schemas import (
-    PredictRequest, PredictResponse,
-    BatchPredictRequest, BatchPredictResponse,
-    HealthResponse, MetricsResponse, Detection
+    BatchPredictRequest,
+    BatchPredictResponse,
+    Detection,
+    HealthResponse,
+    MetricsResponse,
+    PredictRequest,
+    PredictResponse,
 )
-from model import load_model, get_default_model_name
+
 app = FastAPI(
     title="YOLO Inference API",
     description="API REST para inferência com YOLOv8 no Raspberry Pi 5",
@@ -71,9 +76,11 @@ async def health_check():
     try:
         load_model(model_name)
         loaded = True
-    except Exception:
+    except Exception:  # noqa: BLE001
         loaded = False
     return HealthResponse(status="ok", model_loaded=loaded, model_name=model_name)
+
+
 @app.post("/predict", response_model=PredictResponse)
 def predict(request: PredictRequest):
     _metrics["total"] += 1
@@ -85,11 +92,9 @@ def predict(request: PredictRequest):
         return result
     except HTTPException:
         raise
-    except HTTPException:
-        raise
     except FileNotFoundError as e:
         raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         raise HTTPException(status_code=500, detail=str(e))
 @app.post("/predict/batch", response_model=BatchPredictResponse)
 def predict_batch(request: BatchPredictRequest):
