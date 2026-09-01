@@ -49,13 +49,13 @@ jobs:
           printf "%s\n" "${{ secrets.RPI_SSH_KEY }}" > ~/.ssh/dvc_key
           chmod 600 ~/.ssh/dvc_key
           
-          # FORÇA O SSH A USAR A CHAVE E O USUÁRIO CORRETO NO IP DO TAILSCALE
-          echo "Host 100.88.129.43" > ~/.ssh/config
-          echo "  User jh" >> ~/.ssh/config
-          echo "  IdentityFile ~/.ssh/dvc_key" >> ~/.ssh/config
-          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
-          chmod 400 ~/.ssh/config
-
+          # Passa a chave e o usuário diretamente para o driver SSH do DVC
+          dvc remote modify --local local_remote keyfile ~/.ssh/dvc_key
+          dvc remote modify --local local_remote user jh
+          
+          # Testa se o Tailscale está alcançando a placa
+          ping -c 2 100.88.129.43
+          
           dvc pull -v
 
       - name: Disponibiliza o modelo em /app/models (mesmo path usado no Docker)
@@ -156,13 +156,10 @@ jobs:
           printf "%s\n" "${{ secrets.RPI_SSH_KEY }}" > ~/.ssh/dvc_key
           chmod 600 ~/.ssh/dvc_key
           
-          # FORÇA O SSH A USAR A CHAVE E O USUÁRIO CORRETO NO IP DO TAILSCALE
-          echo "Host 100.88.129.43" > ~/.ssh/config
-          echo "  User jh" >> ~/.ssh/config
-          echo "  IdentityFile ~/.ssh/dvc_key" >> ~/.ssh/config
-          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
-          chmod 400 ~/.ssh/config
-
+          # Passa a chave e o usuário diretamente para o driver SSH do DVC
+          dvc remote modify --local local_remote keyfile ~/.ssh/dvc_key
+          dvc remote modify --local local_remote user jh
+          
           dvc pull -v
 
       - name: Executar quality gate (mAP@0.5 >= 0.50)
