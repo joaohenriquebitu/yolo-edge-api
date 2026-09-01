@@ -10,7 +10,7 @@ on:
     branches: [main]
 
 env:
-  REGISTRY:    ghcr.io
+  REGISTRY:   ghcr.io
   IMAGE_NAME:  ${{ github.repository }}/yolo-api
 
 jobs:
@@ -48,8 +48,15 @@ jobs:
           mkdir -p ~/.ssh
           printf "%s\n" "${{ secrets.RPI_SSH_KEY }}" > ~/.ssh/dvc_key
           chmod 600 ~/.ssh/dvc_key
-          dvc remote modify --local local_remote keyfile ~/.ssh/dvc_key
-          dvc pull
+          
+          # FORÇA O SSH A USAR A CHAVE E O USUÁRIO CORRETO NO IP DO TAILSCALE
+          echo "Host 100.88.129.43" > ~/.ssh/config
+          echo "  User jh" >> ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/dvc_key" >> ~/.ssh/config
+          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+          chmod 400 ~/.ssh/config
+
+          dvc pull -v
 
       - name: Disponibiliza o modelo em /app/models (mesmo path usado no Docker)
         run: |
@@ -148,8 +155,15 @@ jobs:
           mkdir -p ~/.ssh
           printf "%s\n" "${{ secrets.RPI_SSH_KEY }}" > ~/.ssh/dvc_key
           chmod 600 ~/.ssh/dvc_key
-          dvc remote modify --local local_remote keyfile ~/.ssh/dvc_key
-          dvc pull
+          
+          # FORÇA O SSH A USAR A CHAVE E O USUÁRIO CORRETO NO IP DO TAILSCALE
+          echo "Host 100.88.129.43" > ~/.ssh/config
+          echo "  User jh" >> ~/.ssh/config
+          echo "  IdentityFile ~/.ssh/dvc_key" >> ~/.ssh/config
+          echo "  StrictHostKeyChecking no" >> ~/.ssh/config
+          chmod 400 ~/.ssh/config
+
+          dvc pull -v
 
       - name: Executar quality gate (mAP@0.5 >= 0.50)
         run: python scripts/validate_model.py --threshold 0.50
@@ -177,9 +191,9 @@ jobs:
       - name: Deploy via SSH com rollback automático
         uses: appleboy/ssh-action@v1
         with:
-          host:     ${{ secrets.RPI_HOST }}
+          host:      ${{ secrets.RPI_HOST }}
           username: ${{ secrets.RPI_USER }}
-          key:      ${{ secrets.RPI_SSH_KEY }}
+          key:       ${{ secrets.RPI_SSH_KEY }}
           command_timeout: 30m
           script: |
             export DEPLOY_PATH=${{ secrets.RPI_DEPLOY_PATH }}
