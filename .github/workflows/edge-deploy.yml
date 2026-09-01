@@ -44,18 +44,18 @@ jobs:
 
       - name: Download modelo para testes
         run: |
-          pip install "dvc[ssh]"
+          pip install "pygtrie==2.5.0" "sqltrie>=0.11.2" "dvc[ssh]"
           mkdir -p ~/.ssh
           printf "%s\n" "${{ secrets.RPI_SSH_KEY }}" > ~/.ssh/dvc_key
           chmod 600 ~/.ssh/dvc_key
-          
+
           # Passa a chave e o usuário diretamente para o driver SSH do DVC
           dvc remote modify --local local_remote keyfile ~/.ssh/dvc_key
           dvc remote modify --local local_remote user jh
-          
+
           # Testa se o Tailscale está alcançando a placa
           ping -c 2 100.88.129.43
-          
+
           dvc pull -v
 
       - name: Disponibiliza o modelo em /app/models (mesmo path usado no Docker)
@@ -148,18 +148,18 @@ jobs:
           cache: pip
 
       - name: Instalar dependências
-        run: pip install ultralytics "dvc[ssh]"
+        run: pip install "pygtrie==2.5.0" "sqltrie>=0.11.2" ultralytics "dvc[ssh]"
 
       - name: Recuperar modelo via DVC
         run: |
           mkdir -p ~/.ssh
           printf "%s\n" "${{ secrets.RPI_SSH_KEY }}" > ~/.ssh/dvc_key
           chmod 600 ~/.ssh/dvc_key
-          
+
           # Passa a chave e o usuário diretamente para o driver SSH do DVC
           dvc remote modify --local local_remote keyfile ~/.ssh/dvc_key
           dvc remote modify --local local_remote user jh
-          
+
           dvc pull -v
 
       - name: Executar quality gate (mAP@0.5 >= 0.50)
@@ -188,9 +188,9 @@ jobs:
       - name: Deploy via SSH com rollback automático
         uses: appleboy/ssh-action@v1
         with:
-          host:      ${{ secrets.RPI_HOST }}
+          host:       ${{ secrets.RPI_HOST }}
           username: ${{ secrets.RPI_USER }}
-          key:       ${{ secrets.RPI_SSH_KEY }}
+          key:        ${{ secrets.RPI_SSH_KEY }}
           command_timeout: 30m
           script: |
             export DEPLOY_PATH=${{ secrets.RPI_DEPLOY_PATH }}
