@@ -7,3 +7,6 @@ __pycache__/
 images/
 .env
 stream_anotado.avi
+preprocessing/outputs/
+__pycache__/
+runs/
